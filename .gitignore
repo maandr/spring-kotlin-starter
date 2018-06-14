@@ -1,3 +1,4 @@
-.idea
-.gralde
+.idea/
+.gradle/
 build
+out
