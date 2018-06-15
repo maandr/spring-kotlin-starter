@@ -1,6 +1,7 @@
-package maandr.starter
+package maandr.starters
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,18 +12,29 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractRestIntegrationTest {
 
     @Autowired
-    protected lateinit var objectMapper: ObjectMapper
+    private lateinit var context: WebApplicationContext
 
     @Autowired
+    protected lateinit var objectMapper: ObjectMapper
+
     protected lateinit var mockMvc: MockMvc
 
     protected lateinit var resultActions: ResultActions
+
+    @Before
+    fun setup() {
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .build()
+    }
 
     protected fun perform(
         method: HttpMethod,

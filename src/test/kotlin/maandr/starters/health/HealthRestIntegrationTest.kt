@@ -1,5 +1,6 @@
-package maandr.starter
+package maandr.starters.health
 
+import maandr.starters.AbstractRestIntegrationTest
 import org.junit.Test
 import org.springframework.http.HttpMethod
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
