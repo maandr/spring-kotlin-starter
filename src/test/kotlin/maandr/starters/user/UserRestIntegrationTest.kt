@@ -1,8 +1,7 @@
 package maandr.starters.user
 
 import maandr.starters.*
-import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
