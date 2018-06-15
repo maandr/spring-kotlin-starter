@@ -23,6 +23,10 @@ fun ResultActions.headerExists(headerName: String) =
 fun ResultActions.headerEquals(headerName: String, expectedValue: Any) =
     this.andExpect(matchers.header().string(headerName, hamcrest.`is`(expectedValue)))
 
+fun ResultActions.hateosSelfExists(): ResultActions =
+        this.jsonPathExists("_links")
+                .jsonPathExists("_links.self")
+
 fun ResultActions.andExpectThat(build: ResultActions.() -> Unit): ResultActions {
     this.build()
     return this

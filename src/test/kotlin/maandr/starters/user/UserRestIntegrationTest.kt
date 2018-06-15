@@ -53,6 +53,7 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 headerExists(HttpHeaders.LOCATION)
                 jsonPathEquals("name", user.name)
                 jsonPathEquals("age", user.age)
+                hateosSelfExists()
             }
     }
 
@@ -75,6 +76,27 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         assertThat(userRepository.findAll()).containsExactlyInAnyOrderElementsOf(existingEntities
                         .filter { it.id != user.id  }
                         .toList())
+    }
+
+    @Test
+    fun `should update existing user`() {
+        // Given
+        givenExistingUsers()
+        val user = existingEntities.first()
+        val updatedUser = User(name = "Mina", age = 45)
+
+        // When
+        perform(method = HttpMethod.PUT, resourcePath = "/users/${user.id}", content = updatedUser)
+
+        // Then
+        resultActions
+            .print()
+            .andExpectThat {
+                responseStatus(HttpStatus.OK)
+                jsonPathEquals("name", "Mina")
+                jsonPathEquals("age", 45)
+                hateosSelfExists()
+            }
     }
 
     fun givenExistingUsers() {
