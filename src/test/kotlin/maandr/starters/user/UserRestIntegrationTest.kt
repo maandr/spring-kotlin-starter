@@ -58,6 +58,26 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
     }
 
     @Test
+    fun `should find user by name`() {
+        // Given
+        givenExistingUsers()
+        val user = existingEntities.first()
+
+        // When
+        perform(method = HttpMethod.GET, resourcePath = "/users/find-by-name?name=${user.name}")
+
+        // Then
+        resultActions
+            .print()
+            .andExpectThat {
+                responseStatus(HttpStatus.OK)
+                jsonPathEquals("name", user.name)
+                jsonPathEquals("age", user.age)
+                hateosSelfExists()
+            }
+    }
+
+    @Test
     fun `should create a new user`() {
         // Given
         val user = anna()
