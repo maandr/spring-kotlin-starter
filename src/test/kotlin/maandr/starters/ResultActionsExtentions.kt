@@ -25,7 +25,7 @@ fun ResultActions.headerEquals(headerName: String, expectedValue: Any) =
 
 fun ResultActions.hateosSelfExists(): ResultActions =
         this.jsonPathExists("_links")
-                .jsonPathExists("_links.self")
+            .jsonPathExists("_links.self")
 
 fun ResultActions.andExpectThat(build: ResultActions.() -> Unit): ResultActions {
     this.build()
