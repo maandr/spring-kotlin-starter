@@ -9,6 +9,9 @@ import java.util.*
 @RepositoryRestController
 interface UserRepository : JpaRepository<User, Long> {
 
-    @RestResource(path = "users/find-by-name")
+    @RestResource(path = "find-by-name")
     fun findByName(@Param("name") name: String): Optional<User>
+
+    @RestResource(path = "find-by-age")
+    fun findByAge(@Param("age") age: Int): List<User>
 }

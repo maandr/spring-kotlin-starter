@@ -8,7 +8,7 @@ import org.hamcrest.Matchers as hamcrest
 
 fun ResultActions.print() = this.andDo(MockMvcResultHandlers.print())
 
-fun ResultActions.responseStatus(status: HttpStatus) =
+fun ResultActions.statusEquals(status: HttpStatus) =
     this.andExpect(matchers.status().`is`(status.value()))
 
 fun ResultActions.jsonPathExists(expression: String) =
@@ -17,15 +17,18 @@ fun ResultActions.jsonPathExists(expression: String) =
 fun ResultActions.jsonPathEquals(expression: String, expectedValue: Any) =
     this.andExpect(matchers.jsonPath(expression, hamcrest.`is`(expectedValue)))
 
+fun ResultActions.jsonPathHasSize(expression: String, size: Int) =
+        this.andExpect(matchers.jsonPath(expression, hamcrest.hasSize<Int>(size)))
+
 fun ResultActions.headerExists(headerName: String) =
     this.andExpect(matchers.header().exists(headerName))
 
 fun ResultActions.headerEquals(headerName: String, expectedValue: Any) =
     this.andExpect(matchers.header().string(headerName, hamcrest.`is`(expectedValue)))
 
-fun ResultActions.hateosSelfExists(): ResultActions =
+fun ResultActions.hateosContains(expression: String): ResultActions =
         this.jsonPathExists("_links")
-            .jsonPathExists("_links.self")
+            .jsonPathExists("_links.$expression")
 
 fun ResultActions.andExpectThat(build: ResultActions.() -> Unit): ResultActions {
     this.build()

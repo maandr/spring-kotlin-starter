@@ -31,7 +31,7 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         resultActions
             .print()
             .andExpectThat {
-                responseStatus(HttpStatus.OK)
+                statusEquals(HttpStatus.OK)
                 jsonPathExists("page")
                 jsonPathEquals("page.totalElements", existingEntities.size)
             }
@@ -50,10 +50,26 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         resultActions
             .print()
             .andExpectThat {
-                responseStatus(HttpStatus.OK)
+                statusEquals(HttpStatus.OK)
                 jsonPathEquals("name", user.name)
                 jsonPathEquals("age", user.age)
-                hateosSelfExists()
+                hateosContains("self")
+            }
+    }
+
+    @Test
+    fun `should respond 404 when a non existing user is requested`() {
+        // Given
+        givenExistingUsers()
+
+        // When
+        perform(method = HttpMethod.GET, resourcePath = "/users/404")
+
+        // Then
+        resultActions
+            .print()
+            .andExpectThat {
+                statusEquals(HttpStatus.NOT_FOUND)
             }
     }
 
@@ -64,16 +80,69 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         val user = existingEntities.first()
 
         // When
-        perform(method = HttpMethod.GET, resourcePath = "/users/find-by-name?name=${user.name}")
+        perform(method = HttpMethod.GET, resourcePath = "/users/search/find-by-name?name=${user.name}")
 
         // Then
         resultActions
             .print()
             .andExpectThat {
-                responseStatus(HttpStatus.OK)
+                statusEquals(HttpStatus.OK)
                 jsonPathEquals("name", user.name)
                 jsonPathEquals("age", user.age)
-                hateosSelfExists()
+                hateosContains("self")
+            }
+    }
+
+    @Test
+    fun `should respond 404 when no user can be found by a given name`() {
+        // Given
+        givenExistingUsers()
+
+        // When
+        perform(method = HttpMethod.GET, resourcePath = "/users/search/find-by-name?name=john")
+
+        // Then
+        resultActions
+            .print()
+            .andExpectThat {
+                statusEquals(HttpStatus.NOT_FOUND)
+            }
+    }
+
+    @Test
+    fun `should find users by age`() {
+        // Given
+        givenExistingUsers()
+        val user = existingEntities.first()
+
+        // When
+        perform(method = HttpMethod.GET, resourcePath = "/users/search/find-by-age?age=${user.age}")
+
+        // Then
+        resultActions
+            .print()
+            .andExpectThat {
+                statusEquals(HttpStatus.OK)
+                jsonPathHasSize("_embedded.users", 1)
+                hateosContains("self")
+            }
+    }
+
+    @Test
+    fun `should return empty list when no user of a given age can be found`()  {
+        // Given
+        givenExistingUsers()
+
+        // When
+        perform(method = HttpMethod.GET, resourcePath = "/users/search/find-by-age?age=150")
+
+        // Then
+        resultActions
+            .print()
+            .andExpectThat {
+                statusEquals(HttpStatus.OK)
+                jsonPathEquals("_embedded.users", emptyList<User>())
+                hateosContains("self")
             }
     }
 
@@ -89,11 +158,11 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         resultActions
             .print()
             .andExpectThat {
-                responseStatus(HttpStatus.CREATED)
+                statusEquals(HttpStatus.CREATED)
                 headerExists(HttpHeaders.LOCATION)
                 jsonPathEquals("name", user.name)
                 jsonPathEquals("age", user.age)
-                hateosSelfExists()
+                hateosContains("self")
             }
     }
 
@@ -110,7 +179,7 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         resultActions
             .print()
             .andExpectThat {
-                responseStatus(HttpStatus.NO_CONTENT)
+                statusEquals(HttpStatus.NO_CONTENT)
             }
         assertThat(userRepository.count()).isEqualTo(existingEntities.size - 1L)
         assertThat(userRepository.findAll()).containsExactlyInAnyOrderElementsOf(existingEntities
@@ -132,10 +201,10 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         resultActions
             .print()
             .andExpectThat {
-                responseStatus(HttpStatus.OK)
+                statusEquals(HttpStatus.OK)
                 jsonPathEquals("name", "Mina")
                 jsonPathEquals("age", 45)
-                hateosSelfExists()
+                hateosContains("self")
             }
     }
 
