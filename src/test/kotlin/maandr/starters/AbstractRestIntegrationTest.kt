@@ -2,16 +2,23 @@ package maandr.starters
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.Before
+import org.junit.Rule
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.*
 import org.springframework.http.MediaType
+import org.springframework.restdocs.JUnitRestDocumentation
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
+import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.PayloadDocumentation
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
@@ -29,10 +36,21 @@ abstract class AbstractRestIntegrationTest {
 
     protected lateinit var resultActions: ResultActions
 
+    // workaround to make junit rules work with kotlin
+    // https://discuss.kotlinlang.org/t/how-can-i-use-rule/304
+    val restDocumentation = JUnitRestDocumentation("build/api-snippets")
+    @Rule fun restDocumentation(): JUnitRestDocumentation = restDocumentation
+
     @Before
     fun setup() {
         mockMvc = MockMvcBuilders
             .webAppContextSetup(context)
+            .apply<DefaultMockMvcBuilder>(
+                documentationConfiguration(restDocumentation())
+                    .uris()
+                    .withHost("localhost")
+                    .withPort(8080)
+            )
             .build()
     }
 
@@ -60,4 +78,10 @@ abstract class AbstractRestIntegrationTest {
     }
 
     protected fun toJson(value: Any): String = objectMapper.writeValueAsString(value)
+
+    protected fun ignoreLinks(): FieldDescriptor =
+        fieldWithPath("_links.*.*").ignored()
+
+    protected fun ignorePageination(): FieldDescriptor =
+        fieldWithPath("page.*").ignored()
 }

@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 
 class UserRestIntegrationTest : AbstractRestIntegrationTest() {
 
@@ -35,6 +38,15 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 jsonPathExists("page")
                 jsonPathEquals("page.totalElements", existingEntities.size)
             }
+            .andDo(document("users-get-list",
+                responseFields(
+                    fieldWithPath("_embedded.users[].name").description("Name of the user."),
+                    fieldWithPath("_embedded.users[].age").description("Age of the user."),
+                    fieldWithPath("_embedded.users[]._links.*.href").ignored(),
+                    ignoreLinks(),
+                    ignorePageination()
+                )
+            ))
     }
 
     @Test
@@ -55,6 +67,13 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 jsonPathEquals("age", user.age)
                 hateosContains("self")
             }
+            .andDo(document("users-get",
+                responseFields(
+                    fieldWithPath("name").description("Name of the user."),
+                    fieldWithPath("age").description("Age of the user."),
+                    ignoreLinks()
+                )
+            ))
     }
 
     @Test
