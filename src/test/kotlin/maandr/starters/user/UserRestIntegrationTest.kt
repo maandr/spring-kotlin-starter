@@ -9,8 +9,10 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import org.springframework.restdocs.request.RequestDocumentation.requestParameters
 
 class UserRestIntegrationTest : AbstractRestIntegrationTest() {
 
@@ -39,13 +41,7 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 jsonPathEquals("page.totalElements", existingEntities.size)
             }
             .andDo(document("users-get-list",
-                responseFields(
-                    fieldWithPath("_embedded.users[].name").description("Name of the user."),
-                    fieldWithPath("_embedded.users[].age").description("Age of the user."),
-                    fieldWithPath("_embedded.users[]._links.*.href").ignored(),
-                    ignoreLinks(),
-                    ignorePageination()
-                )
+                responseFields(userListFields()).and(ignorePagination()).and(ignoreLinks())
             ))
     }
 
@@ -65,14 +61,9 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 statusEquals(HttpStatus.OK)
                 jsonPathEquals("name", user.name)
                 jsonPathEquals("age", user.age)
-                hateosContains("self")
             }
-            .andDo(document("users-get",
-                responseFields(
-                    fieldWithPath("name").description("Name of the user."),
-                    fieldWithPath("age").description("Age of the user."),
-                    ignoreLinks()
-                )
+            .andDo(document("users-read",
+                responseFields(userFields()).and(ignoreLinks())
             ))
     }
 
@@ -106,14 +97,18 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
             .print()
             .andExpectThat {
                 statusEquals(HttpStatus.OK)
-                jsonPathEquals("name", user.name)
-                jsonPathEquals("age", user.age)
-                hateosContains("self")
+                jsonPathHasSize("_embedded.users", 1)
+                jsonPathEquals("_embedded.users[0].name", user.name)
+                jsonPathEquals("_embedded.users[0].age", user.age)
             }
+            .andDo(document("users-find-by-name",
+                requestParameters(parameterWithName("name").description("Name to search for.")),
+                responseFields(userListFields()).and(ignorePagination()).and(ignoreLinks())
+            ))
     }
 
     @Test
-    fun `should respond 404 when no user can be found by a given name`() {
+    fun `should return empty list when no user can be found with the given name`() {
         // Given
         givenExistingUsers()
 
@@ -124,7 +119,8 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
         resultActions
             .print()
             .andExpectThat {
-                statusEquals(HttpStatus.NOT_FOUND)
+                statusEquals(HttpStatus.OK)
+                jsonPathHasSize("_embedded.users", 0)
             }
     }
 
@@ -143,8 +139,11 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
             .andExpectThat {
                 statusEquals(HttpStatus.OK)
                 jsonPathHasSize("_embedded.users", 1)
-                hateosContains("self")
             }
+            .andDo(document("users-find-by-age",
+                requestParameters(parameterWithName("age").description("The age to search for.")),
+                responseFields(userListFields()).and(ignoreLinks())
+            ))
     }
 
     @Test
@@ -161,7 +160,6 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
             .andExpectThat {
                 statusEquals(HttpStatus.OK)
                 jsonPathEquals("_embedded.users", emptyList<User>())
-                hateosContains("self")
             }
     }
 
@@ -181,8 +179,11 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 headerExists(HttpHeaders.LOCATION)
                 jsonPathEquals("name", user.name)
                 jsonPathEquals("age", user.age)
-                hateosContains("self")
             }
+            .andDo(document("users-create",
+                requestFields(userFields()),
+                responseFields(userFields()).and(ignoreLinks())
+            ))
     }
 
     @Test
@@ -200,6 +201,7 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
             .andExpectThat {
                 statusEquals(HttpStatus.NO_CONTENT)
             }
+            .andDo(document("users-delete"))
         assertThat(userRepository.count()).isEqualTo(existingEntities.size - 1L)
         assertThat(userRepository.findAll()).containsExactlyInAnyOrderElementsOf(existingEntities
                         .filter { it.id != user.id  }
@@ -225,6 +227,10 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
                 jsonPathEquals("age", 45)
                 hateosContains("self")
             }
+            .andDo(document("users-update",
+                requestFields(userFields()),
+                responseFields(userFields()).and(ignoreLinks())
+            ))
     }
 
     fun givenExistingUsers() {
@@ -234,6 +240,20 @@ class UserRestIntegrationTest : AbstractRestIntegrationTest() {
             userRepository.save(john())
         )
     }
+
+    fun userFields(): List<FieldDescriptor> =
+        listOf(
+            fieldWithPath("id").optional().ignored(),
+            fieldWithPath("name").description("Name of the user."),
+            fieldWithPath("age").description("Age of the user.")
+        )
+
+    fun userListFields(): List<FieldDescriptor> =
+        listOf(
+            fieldWithPath("_embedded.users[].name").description("Name of the user."),
+            fieldWithPath("_embedded.users[].age").description("Age of the user."),
+            fieldWithPath("_embedded.users[]._links.*.href").ignored()
+        )
 
     fun max() = User(name = "Max", age = 33)
     fun anna() = User(name = "Anna", age = 28)

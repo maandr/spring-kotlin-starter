@@ -1,0 +1,127 @@
+[[resource-users-get-list]]
+:snippet_name: users-get-list
+==== List
+Retrieve a list of all existing users.
+
+*Response Fields*
+include::{snippets}/{snippet_name}/response-fields.adoc[]
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]
+
+[[resource-users-create]]
+:snippet_name: users-create
+==== Create
+Create a new user.
+
+*Request Fields*
+include::{snippets}/{snippet_name}/request-fields.adoc[]
+
+*Response Fields*
+include::{snippets}/{snippet_name}/response-fields.adoc[]
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]
+
+[[resource-users-read]]
+:snippet_name: users-read
+==== Retrieve
+Retrieve a specific user.
+
+*Response Fields*
+include::{snippets}/{snippet_name}/response-fields.adoc[]
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]
+
+[[resource-users-update]]
+:snippet_name: users-update
+==== Update
+Update an existing user.
+
+*Request Fields*
+include::{snippets}/{snippet_name}/request-fields.adoc[]
+
+*Response Fields*
+include::{snippets}/{snippet_name}/response-fields.adoc[]
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]
+
+[[resource-users-delete]]
+:snippet_name: users-delete
+==== Delete
+Delete an existing user.
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]
+
+[[resource-users-find-by-name]]
+:snippet_name: users-find-by-name
+==== Find by name
+Search users by name.
+
+*Request Parameters*
+include::{snippets}/{snippet_name}/request-parameters.adoc[]
+
+*Response Fields*
+include::{snippets}/{snippet_name}/response-fields.adoc[]
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]
+
+[[resource-users-find-by-age]]
+:snippet_name: users-find-by-age
+==== Find by age
+Search users by age.
+
+*Request Parameters*
+include::{snippets}/{snippet_name}/request-parameters.adoc[]
+
+*Response Fields*
+include::{snippets}/{snippet_name}/response-fields.adoc[]
+
+*Curl snippet*
+include::{snippets}/{snippet_name}/curl-request.adoc[]
+
+*Example request*
+include::{snippets}/{snippet_name}/http-request.adoc[]
+
+*Example response*
+include::{snippets}/{snippet_name}/http-response.adoc[]

@@ -10,6 +10,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.*
 import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
+import org.springframework.restdocs.hypermedia.LinksSnippet
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.PayloadDocumentation
@@ -80,8 +83,15 @@ abstract class AbstractRestIntegrationTest {
     protected fun toJson(value: Any): String = objectMapper.writeValueAsString(value)
 
     protected fun ignoreLinks(): FieldDescriptor =
-        fieldWithPath("_links.*.*").ignored()
+        fieldWithPath("_links.*.*").optional().ignored()
 
-    protected fun ignorePageination(): FieldDescriptor =
-        fieldWithPath("page.*").ignored()
+    protected fun ignorePagination(): FieldDescriptor =
+        fieldWithPath("page.*").optional().ignored()
+
+    protected fun pagination(): List<FieldDescriptor> = listOf(
+        fieldWithPath("page.size").optional().description("Amount of elements per page."),
+        fieldWithPath("page.totalElements").optional().description("Total amount of results."),
+        fieldWithPath("page.totalPages").optional().description("Total amount of pages."),
+        fieldWithPath("page.number").optional().description("The current page.")
+    )
 }
